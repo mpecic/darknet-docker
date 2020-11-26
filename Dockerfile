@@ -1,12 +1,18 @@
-ARG BASE_IMAGE=nvidia/cuda:11.1-cudnn8-devel-ubuntu18.04
+ARG BASE_IMAGE=nvidia/cuda:11.1-devel-ubuntu18.04
 FROM $BASE_IMAGE
+
+ENV CUDNN_VERSION=8.0.5.39
+
+LABEL com.nvidia.cudnn.version=8.0.5.39
+
 LABEL maintainer="Marko Pecić <marko.pecic@smart-sense.hr>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-      && apt-get install --no-install-recommends --no-install-suggests -y gnupg2 ca-certificates \
-            git build-essential libopencv-dev \
+      && apt-get install --no-install-recommends -y libcudnn8=$CUDNN_VERSION-1+cuda11.1 libcudnn8-dev=$CUDNN_VERSION-1+cuda11.1 \
+      && apt-mark hold libcudnn8 \
+      && apt-get install --no-install-recommends --no-install-suggests -y gnupg2 ca-certificates git build-essential libopencv-dev \
       && rm -rf /var/lib/apt/lists/*
 
 COPY configure.sh /tmp/
